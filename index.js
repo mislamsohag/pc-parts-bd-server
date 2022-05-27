@@ -71,6 +71,12 @@ async function run() {
             res.send({ result, token });
         })
 
+        //সকল ইউজার পেতে 
+        app.get('/user', async (req, res) => {
+            const users = await userCollection.find().toArray();
+            res.send(users);
+        });
+
         //সকল প্রোডাক্ট পেতে GET মেথড
         app.get('/product', async (req, res) => {
             const cursor = productsCollection.find({});
@@ -110,12 +116,17 @@ async function run() {
 
 
         //একজন ইউজারের রিভিউ বা মাই রিভিউ দেখানোর জন্য
-        app.get('review', async (req, res) => {
+        app.get('review', verifyJWT, async (req, res) => {
             const userEmail = req.query.userEmail;
-            const query = { userEmail: userEmail };
-            const reviews = await reviewsCollection.find(query).toArray.apply();
-            res.send(reviews);
-        })
+            const decodedEmail = req.decoded.email;
+            if (userEmail === decodedEmail) {
+                const query = { userEmail: userEmail };
+                const reviews = await reviewsCollection.find(query).toArray();
+                return res.send(reviews);
+            } else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+        });
 
         //পূর্বে পোস্ট করা কোন তথ্যকে পূর্ণ আপডেড করার জন্য
         app.put('/update-product/:id', async (req, res) => {
