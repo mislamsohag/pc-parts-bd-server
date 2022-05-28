@@ -54,7 +54,7 @@ async function run() {
         await client.connect();
         const productsCollection = client.db('pcPartsBd').collection('products');
         const reviewsCollection = client.db('pcPartsBd').collection('reviews');
-        const orderCollection = client.db('pcPartsBd').collection('orders');
+        const orderCollection = client.db('pcPartsBd').collection('order');
         const userCollection = client.db('pcPartsBd').collection('users');
 
         //ইউজার তৈরি করার জন্য put করব কেননা আমি জানিনা ইউজার নতুন না পুরাতন
@@ -131,14 +131,9 @@ async function run() {
         // ইউজারের অর্ডারগুলো database-এ রাখার জন্য
         app.post('/order', async (req, res) => {
             const order = req.body;
-            const query = { id: order.productId, email: order.userEmail }
-            const exists = await orderCollection.findOne(query)
-            if (exists) {
-                return res.send({ success: false, order: exists })
-            }
             const result = await orderCollection.insertOne(order);
-            return res.send({ success: true, result });
-        });
+            res.send(result);
+        })
 
 
         //একজন ইউজারের রিভিউ বা মাই রিভিউ দেখানোর জন্য
