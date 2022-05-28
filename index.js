@@ -36,7 +36,7 @@ function verifyJWT(req, res, next) {
     });
 }
 
-//Admin Verify করা
+//Admin Verify করা [মূলত সে এডমিন না হলে অন্যকে বানাতে পারবে না]
 const verifyAdmin = async (req, res, next) => {
     const requester = req.decoded.email;
     const requesterAccount = await userCollection.findOne({ email: requester });
@@ -71,10 +71,36 @@ async function run() {
             res.send({ result, token });
         })
 
-        //সকল ইউজার পেতে 
-        app.get('/user', async (req, res) => {
+        //সকল ইউজারকে পেতে 
+        app.get('/user', verifyJWT, async (req, res) => {
             const users = await userCollection.find().toArray();
             res.send(users);
+        });
+
+        //একজন ইউজার কে admin তৈরি করার জন্য put করব [শর্ত হলো যদি সে এডমিন হয় তবে সে অন্যকে বানাতে পারবে অন্যথায় পারবেনা]
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const requester = req.decoded.email;
+            const requesterAccount = await userCollection.findOne({ email: requester });
+            if (requesterAccount.role === 'admin') {
+                const filter = { email: email };
+                const updateDoc = {
+                    $set: { role: 'admin' },
+                };
+                const result = await userCollection.updateOne(filter, updateDoc);
+                res.send(result);
+            } else {
+                res.status(403).send({ message: 'You are not admin' });
+            }
+
+        })
+
+        //এজন ইউজার এডমিন কিনা এবং কোন কোন জায়গায় তাকে একসেস দিব কিনা তার জন্য 
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
         });
 
         //সকল প্রোডাক্ট পেতে GET মেথড
@@ -84,7 +110,7 @@ async function run() {
             res.send(products);
         });
 
-        // ইউজারের reviews গুলে database-এ রাখতে এবং পূর্বে থাকলে তা বাধা দেয়ার জন্য POST মেথড
+        // ইউজারের reviews গুলো database-এ রাখতে এবং পূর্বে থাকলে তা বাধা দেয়ার জন্য POST মেথড
         app.post('/reviews', async (req, res) => {
             const reviews = req.body;
             const query = { id: reviews.productId, email: reviews.userEmail }
