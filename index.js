@@ -123,6 +123,11 @@ async function run() {
         });
 
 
+        //এখন সকল reviews দেখানোর জন্য get method-এ কাজ করব।
+        app.get('/review', async (req, res) => {
+            const reviews = await reviewsCollection.find().toArray();
+            res.send(reviews);
+        })
 
 
         //পূর্বে পোস্ট করা কোন তথ্যকে পূর্ণ আপডেড করার জন্য
