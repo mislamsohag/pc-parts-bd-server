@@ -137,6 +137,18 @@ async function run() {
         })
 
 
+        //একজন ইউজারের রিভিউ বা মাই রিভিউ দেখানোর জন্য
+        app.get('/review', verifyJWT, async (req, res) => {
+            const userEmail = req.query.userEmail;
+            const decodedEmail = req.decoded.email;
+            if (userEmail === decodedEmail) {
+                const query = { userEmail: userEmail };
+                const reviews = await reviewsCollection.find(query).toArray();
+                return res.send(reviews);
+            } else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+        });
 
 
         //এখন সকল reviews দেখানোর জন্য get method-এ কাজ করব।
