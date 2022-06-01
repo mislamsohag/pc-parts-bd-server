@@ -110,6 +110,19 @@ async function run() {
             res.send(products);
         });
 
+        // ইউজারের reviews গুলো database-এ রাখতে এবং পূর্বে থাকলে তা বাধা দেয়ার জন্য POST মেথড
+        app.post('/reviews', async (req, res) => {
+            const reviews = req.body;
+            const query = { id: reviews.productId, email: reviews.userEmail }
+            const exists = await reviewsCollection.findOne(query)
+            if (exists) {
+                return res.send({ success: false, reviews: exists })
+            }
+            const result = await reviewsCollection.insertOne(reviews);
+            return res.send({ success: true, result });
+        });
+
+
 
 
         //পূর্বে পোস্ট করা কোন তথ্যকে পূর্ণ আপডেড করার জন্য
