@@ -129,6 +129,14 @@ async function run() {
             res.send(result);
         })
 
+        // ইউজারকর্তৃক নতুন product গুলো database-এ রাখতে POST মেথড
+        app.post('/products', async (req, res) => {
+            const products = req.body;
+            const result = await productsCollection.insertOne(products);
+            res.send(result);
+        })
+
+
 
 
         //এখন সকল reviews দেখানোর জন্য get method-এ কাজ করব।
