@@ -152,7 +152,7 @@ async function run() {
 
 
         //এখন সকল reviews দেখানোর জন্য get method-এ কাজ করব।
-        app.get('/review', async (req, res) => {
+        app.get('/reviews', async (req, res) => {
             const reviews = await reviewsCollection.find().toArray();
             res.send(reviews);
         })
