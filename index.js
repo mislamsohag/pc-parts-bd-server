@@ -110,44 +110,7 @@ async function run() {
             res.send(products);
         });
 
-        // ইউজারের reviews গুলো database-এ রাখতে এবং পূর্বে থাকলে তা বাধা দেয়ার জন্য POST মেথড
-        app.post('/reviews', async (req, res) => {
-            const reviews = req.body;
-            const query = { id: reviews.productId, email: reviews.userEmail }
-            const exists = await reviewsCollection.findOne(query)
-            if (exists) {
-                return res.send({ success: false, reviews: exists })
-            }
-            const result = await reviewsCollection.insertOne(reviews);
-            return res.send({ success: true, result });
-        });
 
-        //এখন সকল reviews দেখানোর জন্য get method-এ কাজ করব।
-        app.get('/review', async (req, res) => {
-            const reviews = await reviewsCollection.find().toArray();
-            res.send(reviews);
-        })
-
-        // ইউজারের অর্ডারগুলো database-এ রাখার জন্য
-        app.post('/order', async (req, res) => {
-            const order = req.body;
-            const result = await orderCollection.insertOne(order);
-            res.send(result);
-        })
-
-
-        //একজন ইউজারের রিভিউ বা মাই রিভিউ দেখানোর জন্য
-        app.get('review', verifyJWT, async (req, res) => {
-            const userEmail = req.query.userEmail;
-            const decodedEmail = req.decoded.email;
-            if (userEmail === decodedEmail) {
-                const query = { userEmail: userEmail };
-                const reviews = await reviewsCollection.find(query).toArray();
-                return res.send(reviews);
-            } else {
-                return res.status(403).send({ message: 'forbidden access' });
-            }
-        });
 
         //পূর্বে পোস্ট করা কোন তথ্যকে পূর্ণ আপডেড করার জন্য
         app.put('/update-product/:id', async (req, res) => {
