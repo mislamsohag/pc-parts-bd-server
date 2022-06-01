@@ -122,6 +122,14 @@ async function run() {
             return res.send({ success: true, result });
         });
 
+        // ইউজারের অর্ডারগুলো database-এ রাখার জন্য
+        app.post('/order', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.send(result);
+        })
+
+
 
         //এখন সকল reviews দেখানোর জন্য get method-এ কাজ করব।
         app.get('/review', async (req, res) => {
