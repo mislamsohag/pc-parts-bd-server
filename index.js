@@ -169,13 +169,14 @@ async function run() {
             res.send(result);
         });
 
-        //কোন তথ্যকে delete করার জন্য
-        app.delete('/delete-product/:id', async (req, res) => {
-            const { id } = req.params; //params এ যা আছে তা ধরার জন্য           
-            const query = { _id: ObjectId(id) };
-            const result = await productsCollection.deleteOne(query);
+        //user কে delete করার জন্য
+        app.delete('/userDelete/:email', async (req, res) => {
+            const email = req.params.email; //params এ যা আছে তা ধরার জন্য           
+            const query = { email: email };
+            const result = await userCollection.deleteOne(query);
             res.send(result);
         });
+
 
     } finally {
 
