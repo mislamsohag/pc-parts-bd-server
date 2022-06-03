@@ -137,6 +137,19 @@ async function run() {
         })
 
 
+        //একজন ইউজারের Order গুলো মাই অর্ডারে দেখানোর জন্য
+        app.get('/my-orders', verifyJWT, async (req, res) => {
+            const userEmail = req.query.userEmail;
+            const decodedEmail = req.decoded.email;
+            if (userEmail === decodedEmail) {
+                const query = { userEmail: userEmail };
+                const orders = await orderCollection.find(query).toArray();
+                return res.send(orders);
+            } else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+        });
+
         //একজন ইউজারের রিভিউ বা মাই রিভিউ দেখানোর জন্য
         app.get('/review', verifyJWT, async (req, res) => {
             const userEmail = req.query.userEmail;
