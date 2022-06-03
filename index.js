@@ -129,12 +129,27 @@ async function run() {
             res.send(result);
         })
 
+
+
         // ইউজারকর্তৃক নতুন product গুলো database-এ রাখতে POST মেথড
         app.post('/products', async (req, res) => {
             const products = req.body;
             const result = await productsCollection.insertOne(products);
             res.send(result);
         })
+
+        //একজন ইউজারের Products গুলো MyProducts-এ দেখানোর জন্য
+        app.get('/my-products', verifyJWT, async (req, res) => {
+            const userEmail = req.query.userEmail;
+            const decodedEmail = req.decoded.email;
+            if (userEmail === decodedEmail) {
+                const query = { userEmail: userEmail };
+                const products = await productsCollection.find(query).toArray();
+                return res.send(products);
+            } else {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+        });
 
 
         //একজন ইউজারের Order গুলো মাই অর্ডারে দেখানোর জন্য
