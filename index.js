@@ -110,6 +110,13 @@ async function run() {
             res.send(products);
         });
 
+        //সকল প্রোডাক্ট পেতে GET মেথড manage করার জন্য
+        app.get('/manage-products', async (req, res) => {
+            const cursor = productsCollection.find({});
+            const products = await cursor.toArray();
+            res.send(products);
+        });
+
         // ইউজারের reviews গুলো database-এ রাখতে এবং পূর্বে থাকলে তা বাধা দেয়ার জন্য POST মেথড
         app.post('/reviews', async (req, res) => {
             const reviews = req.body;
@@ -130,7 +137,6 @@ async function run() {
         })
 
 
-
         // ইউজারকর্তৃক নতুন product গুলো database-এ রাখতে POST মেথড
         app.post('/products', async (req, res) => {
             const products = req.body;
@@ -138,23 +144,25 @@ async function run() {
             res.send(result);
         })
 
+
         //একজন ইউজারের Products গুলো MyProducts-এ দেখানোর জন্য
         app.get('/my-products', verifyJWT, async (req, res) => {
-            const userEmail = req.query.userEmail;
+            const userEmail = req.query.email;
             const decodedEmail = req.decoded.email;
             if (userEmail === decodedEmail) {
                 const query = { userEmail: userEmail };
-                const products = await productsCollection.find(query).toArray();
-                return res.send(products);
+                const MyProducts = await reviewsCollection.find(query).toArray();
+                return res.send(MyProducts);
             } else {
                 return res.status(403).send({ message: 'forbidden access' });
             }
         });
 
 
+
         //একজন ইউজারের Order গুলো মাই অর্ডারে দেখানোর জন্য
         app.get('/my-orders', verifyJWT, async (req, res) => {
-            const userEmail = req.query.userEmail;
+            const userEmail = req.query.email;
             const decodedEmail = req.decoded.email;
             if (userEmail === decodedEmail) {
                 const query = { userEmail: userEmail };
@@ -167,7 +175,7 @@ async function run() {
 
         //একজন ইউজারের রিভিউ বা মাই রিভিউ দেখানোর জন্য
         app.get('/review', verifyJWT, async (req, res) => {
-            const userEmail = req.query.userEmail;
+            const userEmail = req.query.email;
             const decodedEmail = req.decoded.email;
             if (userEmail === decodedEmail) {
                 const query = { userEmail: userEmail };
